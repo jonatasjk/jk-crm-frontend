@@ -10,6 +10,8 @@ jobs:
   test:
     name: Test & Coverage
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -21,6 +23,12 @@ jobs:
           node-version: '22'
           cache: npm
 
+      - name: System info
+        run: |
+          node --version
+          npm --version
+          uname -a
+
       - name: Install dependencies
         run: npm ci
 
@@ -28,7 +36,20 @@ jobs:
         run: npm run typecheck
 
       - name: Run tests
-        run: npm test
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test.log
+        shell: bash
 
       - name: Run tests with coverage
-        run: npm run test:coverage
+        run: |
+          set -o pipefail
+          npm run test:coverage 2>&1 | tee coverage.log
+        shell: bash
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs
+          path: '*.log'
