@@ -27,18 +27,7 @@ jobs:
           echo "OS: $(uname -a)"
 
       - name: Install dependencies
-        run: |
-          set +e
-          npm ci 2>&1 | tee install.log
-          npm_exit=${PIPESTATUS[0]}
-          set -e
-          if [ $npm_exit -ne 0 ]; then
-            echo "::error title=npm ci failed::Exit code $npm_exit. See annotations below."
-            while IFS= read -r line; do
-              [ -n "$line" ] && echo "::error::$line"
-            done < install.log
-            exit $npm_exit
-          fi
+        run: npm ci
 
       - name: Type check
         run: npm run typecheck
