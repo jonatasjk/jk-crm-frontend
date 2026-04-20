@@ -25,27 +25,46 @@ jobs:
 
       - name: System info
         run: |
-          node --version
-          npm --version
-          uname -a
+          echo "### System Info" >> $GITHUB_STEP_SUMMARY
+          echo "- Node: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- npm: $(npm --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- OS: $(uname -a)" >> $GITHUB_STEP_SUMMARY
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci > install.log 2>&1
+          EXIT=$?
+          cat install.log
+          if [ $EXIT -ne 0 ]; then
+            echo "### ❌ Install failed (exit $EXIT)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat install.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit $EXIT
+          fi
 
       - name: Type check
-        run: npm run typecheck
+        run: |
+          npm run typecheck > typecheck.log 2>&1
+          EXIT=$?
+          cat typecheck.log
+          if [ $EXIT -ne 0 ]; then
+            echo "### ❌ Typecheck failed (exit $EXIT)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat typecheck.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit $EXIT
+          fi
 
       - name: Run tests
         run: |
           set -o pipefail
           npm test 2>&1 | tee test.log
-        shell: bash
 
       - name: Run tests with coverage
         run: |
           set -o pipefail
           npm run test:coverage 2>&1 | tee coverage.log
-        shell: bash
 
       - name: Upload logs
         if: always()
@@ -53,3 +72,4 @@ jobs:
         with:
           name: ci-logs
           path: '*.log'
+          if-no-files-found: warn
