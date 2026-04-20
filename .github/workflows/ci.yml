@@ -10,8 +10,6 @@ jobs:
   test:
     name: Test & Coverage
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -20,54 +18,36 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: npm
+          node-version: '24'
 
       - name: System info
         run: |
-          echo "### System Info" >> $GITHUB_STEP_SUMMARY
-          echo "- Node: $(node --version)" >> $GITHUB_STEP_SUMMARY
-          echo "- npm: $(npm --version)" >> $GITHUB_STEP_SUMMARY
-          echo "- OS: $(uname -a)" >> $GITHUB_STEP_SUMMARY
+          echo "Node: $(node --version)"
+          echo "npm: $(npm --version)"
+          echo "OS: $(uname -a)"
 
       - name: Install dependencies
         run: |
-          npm ci > install.log 2>&1
-          EXIT=$?
-          cat install.log
-          if [ $EXIT -ne 0 ]; then
-            echo "### ❌ Install failed (exit $EXIT)" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat install.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            exit $EXIT
+          set +e
+          npm ci 2>&1 | tee install.log
+          npm_exit=${PIPESTATUS[0]}
+          set -e
+          if [ $npm_exit -ne 0 ]; then
+            echo "::error title=npm ci failed::Exit code $npm_exit. See annotations below."
+            while IFS= read -r line; do
+              [ -n "$line" ] && echo "::error::$line"
+            done < install.log
+            exit $npm_exit
           fi
 
       - name: Type check
-        run: |
-          npm run typecheck > typecheck.log 2>&1
-          EXIT=$?
-          cat typecheck.log
-          if [ $EXIT -ne 0 ]; then
-            echo "### ❌ Typecheck failed (exit $EXIT)" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat typecheck.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            exit $EXIT
-          fi
-
-      - name: Run tests
-        run: |
-          set -o pipefail
-          npm test 2>&1 | tee test.log
+        run: npm run typecheck
 
       - name: Run tests with coverage
-        run: |
-          set -o pipefail
-          npm run test:coverage 2>&1 | tee coverage.log
+        run: npm run test:coverage
 
-      - name: Upload logs
-        if: always()
+      - name: Upload logs on failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: ci-logs
