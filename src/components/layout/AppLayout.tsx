@@ -76,7 +76,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       )}
     >
       <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-800">
-        <div className="h-8 w-8 rounded-lg bg-indigo-500 flex items-center justify-center text-sm font-bold">N</div>
+        <img src="/chief-delivery-officer.png" alt="JK CRM" className="h-8 w-8 object-contain rounded" />
         <span className="font-semibold text-lg">JK CRM</span>
         {mobile && (
           <button

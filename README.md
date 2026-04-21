@@ -1,4 +1,8 @@
-# JK CRM Frontend
+# JK CRM - Frontend
+
+<p align="center">
+  <img src="public/chief-delivery-officer.png" alt="Chief Delivery Officer" width="160" />
+</p>
 
 A modern CRM for managing **Investors** and **Partners**, featuring Kanban pipelines, email dispatch with attachments, email sequences, CSV import, materials management, and a daily send-count dashboard.
 
@@ -33,7 +37,7 @@ A modern CRM for managing **Investors** and **Partners**, featuring Kanban pipel
 ### Prerequisites
 
 - Node.js 20 LTS
-- The `crm-backend` API running (see `../crm-backend`)
+- The `crm-backend` API running. See [JK CRM - Backend](https://github.com/jonatasjk/jk-crm-backend)
 
 ### Install & run
 

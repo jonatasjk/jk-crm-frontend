@@ -46,9 +46,7 @@ export function ChangePasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-indigo-600 mb-4">
-            <span className="text-white font-bold text-xl">N</span>
-          </div>
+          <img src="/chief-delivery-officer.png" alt="JK CRM mascot" className="h-16 w-16 object-contain mb-4 mx-auto" />
           <h1 className="text-2xl font-bold text-gray-900">Change your password</h1>
           <p className="text-gray-500 mt-1">You must set a new password before continuing</p>
         </div>
