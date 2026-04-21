@@ -11,6 +11,7 @@ A modern CRM for managing **Investors** and **Partners**, featuring Kanban pipel
 - **Investor & Partner pipelines** — drag-and-drop Kanban boards across 7 and 6 stages respectively
 - **Email composition** — rich-text editor, HTML email, material attachments, `{{first_name}}` / `{{last_name}}` / `{{name}}` placeholders
 - **Email sequences** — automated drip campaigns with per-step delays; enroll individuals or entire lists
+- **Email control** - send up to 100 emails a day (Resend's free-tier limit)
 - **Materials library** — upload pitch decks and documents (PDF, Excel, etc.) to local directory; attach to any outbound email
 - **CSV import** — client-side header mapping, field preview, bulk upsert with a per-row result report
 - **Dashboard** — stat cards for total investors/partners, active counts, and **emails sent today** (live from server, no cap extrapolation)
