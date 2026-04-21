@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Users, Handshake, FileText, Mail, LogOut, BarChart3, Menu, X, Zap, KeyRound } from 'lucide-react';
+import { Users, Handshake, FileText, Mail, LogOut, BarChart3, Menu, X, Zap, KeyRound, UserCog } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -108,6 +108,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </Link>
           );
         })}
+        {user?.role === 'ADMIN' && (
+          <Link
+            to="/users"
+            onClick={() => setSidebarOpen(false)}
+            className={cn(
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+              location.pathname.startsWith('/users')
+                ? 'bg-indigo-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-800',
+            )}
+          >
+            <UserCog size={18} />
+            Users
+          </Link>
+        )}
       </nav>
 
       <div className="px-3 py-4 border-t border-gray-800">

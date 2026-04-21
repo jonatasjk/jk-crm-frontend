@@ -5,6 +5,8 @@ export const mockUser = {
   email: 'admin@test.com',
   name: 'Test Admin',
   role: 'ADMIN',
+  mustChangePassword: false,
+  createdAt: '2024-01-01T00:00:00Z',
 };
 
 export const mockInvestors: Investor[] = [

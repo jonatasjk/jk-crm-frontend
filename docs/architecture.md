@@ -19,7 +19,7 @@ import capabilities.
 | Framework | **Fastify 4** | Fastest Node.js HTTP framework, built-in schema validation, good plugin ecosystem |
 | ORM | **Prisma 5** | Excellent TypeScript integration, migrations, generated client |
 | Database | PostgreSQL 16 | JSONB support, robust relational model, works well with Prisma |
-| File Storage | **Amazon S3** | Durable object storage for PDFs, Excel, and other materials |
+| File Storage | **Local directory** | Durable object storage for PDFs, Excel, and other materials |
 | Email | **Resend** | Cost-effective transactional email, supports raw MIME (attachments) |
 | Auth | **JWT** via `@fastify/jwt` | Stateless, easy to integrate, sufficient for internal CRM |
 | CSV Parsing | **csv-parse** | Streaming CSV parser, handles large files, good TS types |
@@ -56,7 +56,7 @@ import capabilities.
 - Linked: notes, email logs, materials, tags, activities
 
 ### Material
-- name, description, fileKey (S3 key), fileUrl (presigned), mimeType, size
+- name, description, mimeType, size
 - Tagged as `INVESTOR` or `PARTNER` type — can be selected when composing emails
 
 ### EmailLog
@@ -84,9 +84,9 @@ Both are rendered as **Kanban boards** with drag-and-drop to move cards between 
 
 1. User selects a contact (investor/partner) and clicks **Send Email**
 2. Compose form lets user pick email template or write custom subject/body (HTML)
-3. User attaches materials from the materials library (already uploaded to S3)
+3. User attaches materials from the materials library (already uploaded to local directory)
 4. Backend:
-   a. Fetches material files from S3
+   a. Fetches material files from local directory
    b. Builds a MIME multipart message
    c. Sends via `SES.sendRawEmail`
    d. Records an `EmailLog` entry with status
@@ -105,9 +105,8 @@ Both are rendered as **Kanban boards** with drag-and-drop to move cards between 
 
 ## Security Notes
 
-- All file uploads are scanned for MIME type before S3 storage
-- S3 objects are private; material download URLs are short-lived presigned URLs
-- SES sending identity must be verified; FROM address is configured via env var
+- All file uploads are scanned for MIME type before storage
+- Resend.com sending identity must be verified; FROM address is configured via env var
 - JWT tokens expire in 8 hours; refresh tokens stored in HTTP-only cookies
 - All DB queries go through Prisma (parameterised) — no raw SQL injection risk
 - User passwords hashed with **bcrypt** (cost factor 12)

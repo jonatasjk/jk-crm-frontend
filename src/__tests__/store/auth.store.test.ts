@@ -38,6 +38,17 @@ describe('useAuthStore', () => {
       expect(localStorage.getItem('crm_token')).toBe('test-token');
     });
 
+    it('returns mustChangePassword from server response', async () => {
+      server.use(
+        http.post(`${BASE}/auth/login`, () =>
+          HttpResponse.json({ token: 'test-token', user: { id: '1', email: 'admin@test.com', name: 'Admin', role: 'ADMIN', mustChangePassword: true } }),
+        ),
+      );
+      const { login } = useAuthStore.getState();
+      const result = await login('admin@test.com', 'password123');
+      expect(result.mustChangePassword).toBe(true);
+    });
+
     it('throws on authentication failure (401)', async () => {
       server.use(
         http.post(`${BASE}/auth/login`, () =>
@@ -69,29 +80,22 @@ describe('useAuthStore', () => {
     });
   });
 
-  describe('register', () => {
-    it('sets user, token and isAuthenticated on success', async () => {
-      const { register } = useAuthStore.getState();
-      await register('admin@test.com', 'password123', 'Test Admin');
-
-      const state = useAuthStore.getState();
-      expect(state.isAuthenticated).toBe(true);
-      expect(state.token).toBe('test-token');
-      expect(state.user).not.toBeNull();
-    });
-
-    it('stores token in localStorage', async () => {
-      const { register } = useAuthStore.getState();
-      await register('admin@test.com', 'password123', 'Test Admin');
-
-      expect(localStorage.getItem('crm_token')).toBe('test-token');
+  describe('clearMustChangePassword', () => {
+    it('sets mustChangePassword to false on user', () => {
+      useAuthStore.setState({
+        user: { id: '1', email: 'a@b.com', name: 'A', role: 'ADMIN', mustChangePassword: true },
+        token: 'tok',
+        isAuthenticated: true,
+      });
+      useAuthStore.getState().clearMustChangePassword();
+      expect(useAuthStore.getState().user?.mustChangePassword).toBe(false);
     });
   });
 
   describe('logout', () => {
     it('clears user, token and isAuthenticated', () => {
       useAuthStore.setState({
-        user: { id: '1', email: 'a@b.com', name: 'A', role: 'ADMIN' },
+        user: { id: '1', email: 'a@b.com', name: 'A', role: 'ADMIN', mustChangePassword: false },
         token: 'tok',
         isAuthenticated: true,
       });

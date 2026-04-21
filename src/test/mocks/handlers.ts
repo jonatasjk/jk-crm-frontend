@@ -16,10 +16,6 @@ export const handlers = [
     HttpResponse.json({ token: 'test-token', user: mockUser }),
   ),
 
-  http.post(`${BASE}/auth/register`, () =>
-    HttpResponse.json({ token: 'test-token', user: mockUser }),
-  ),
-
   http.get(`${BASE}/auth/me`, () =>
     HttpResponse.json({ user: mockUser }),
   ),
@@ -34,6 +30,32 @@ export const handlers = [
 
   http.post(`${BASE}/auth/change-password`, () =>
     HttpResponse.json({ success: true }),
+  ),
+
+  http.post(`${BASE}/auth/invite`, () =>
+    HttpResponse.json({ message: 'Invitation sent' }, { status: 201 }),
+  ),
+
+  http.get(`${BASE}/auth/verify-invite`, () =>
+    HttpResponse.json({ email: 'invited@test.com', role: 'MEMBER' }),
+  ),
+
+  http.post(`${BASE}/auth/accept-invite`, () =>
+    HttpResponse.json({ token: 'test-token', user: mockUser }, { status: 201 }),
+  ),
+
+  // ── Users ─────────────────────────────────────────────────────────────────
+  http.get(`${BASE}/users`, () =>
+    HttpResponse.json({
+      users: [
+        mockUser,
+        { id: 'user-2', email: 'member@test.com', name: 'Test Member', role: 'MEMBER', mustChangePassword: false, createdAt: '2024-01-02T00:00:00Z' },
+      ],
+    }),
+  ),
+
+  http.delete(`${BASE}/users/:id`, () =>
+    new HttpResponse(null, { status: 204 }),
   ),
 
   // ── Investors ─────────────────────────────────────────────────────────────

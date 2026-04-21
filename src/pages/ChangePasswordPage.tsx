@@ -1,23 +1,28 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/auth.store';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 
 const schema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(8, 'At least 8 characters'),
+  currentPassword: z.string().min(1, 'Required'),
+  newPassword: z.string().min(8, 'At least 8 characters'),
+  confirmPassword: z.string().min(8, 'At least 8 characters'),
+}).refine((d) => d.newPassword === d.confirmPassword, {
+  message: "Passwords don't match",
+  path: ['confirmPassword'],
 });
 
 type FormData = z.infer<typeof schema>;
 
-export function LoginPage() {
+export function ChangePasswordPage() {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { clearMustChangePassword } = useAuthStore();
   const [error, setError] = useState('');
 
   const {
@@ -29,14 +34,11 @@ export function LoginPage() {
   const onSubmit = async (data: FormData) => {
     setError('');
     try {
-      const result = await login(data.email, data.password);
-      if (result.mustChangePassword) {
-        navigate('/change-password');
-      } else {
-        navigate('/dashboard');
-      }
+      await authApi.changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword });
+      clearMustChangePassword();
+      navigate('/dashboard');
     } catch {
-      setError('Invalid email or password');
+      setError('Current password is incorrect. Please try again.');
     }
   };
 
@@ -47,37 +49,38 @@ export function LoginPage() {
           <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-indigo-600 mb-4">
             <span className="text-white font-bold text-xl">N</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 mt-1">Sign in to JK CRM</p>
+          <h1 className="text-2xl font-bold text-gray-900">Change your password</h1>
+          <p className="text-gray-500 mt-1">You must set a new password before continuing</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-4">
           {error && <Alert variant="error">{error}</Alert>}
 
           <Input
-            label="Email"
-            type="email"
-            placeholder="you@company.com"
-            error={errors.email?.message}
-            {...register('email')}
-          />
-          <Input
-            label="Password"
+            label="Current Password"
             type="password"
             placeholder="••••••••"
-            error={errors.password?.message}
-            {...register('password')}
+            error={errors.currentPassword?.message}
+            {...register('currentPassword')}
+          />
+          <Input
+            label="New Password"
+            type="password"
+            placeholder="••••••••"
+            error={errors.newPassword?.message}
+            {...register('newPassword')}
+          />
+          <Input
+            label="Confirm New Password"
+            type="password"
+            placeholder="••••••••"
+            error={errors.confirmPassword?.message}
+            {...register('confirmPassword')}
           />
 
           <Button type="submit" className="w-full" loading={isSubmitting}>
-            Sign in
+            Update password
           </Button>
-
-          <p className="text-center text-sm text-gray-500">
-            <Link to="/forgot-password" className="text-indigo-600 hover:underline font-medium">
-              Forgot password?
-            </Link>
-          </p>
         </form>
       </div>
     </div>
