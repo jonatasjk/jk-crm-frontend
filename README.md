@@ -4,6 +4,12 @@
   <img src="public/chief-delivery-officer.png" alt="Chief Delivery Officer" width="160" />
 </p>
 
+<p align="center">
+  <a href="https://buymeacoffee.com/jonatas" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50" />
+  </a>
+</p>
+
 A modern CRM for managing **Investors** and **Partners**, featuring Kanban pipelines, email dispatch with attachments, email sequences, CSV import, materials management, and a daily send-count dashboard.
 
 ## Features
