@@ -7,6 +7,7 @@ export interface InvestorFilters {
   search?: string;
   page?: number;
   limit?: number;
+  notEnrolledInAnySequence?: boolean;
 }
 
 export const investorsApi = {

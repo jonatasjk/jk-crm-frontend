@@ -76,6 +76,7 @@ export function SequenceDetailPage() {
   const [enrollSearch, setEnrollSearch] = useState('');
   const [enrollError, setEnrollError] = useState('');
   const [enrollSuccess, setEnrollSuccess] = useState('');
+  const [enrollOnlyNew, setEnrollOnlyNew] = useState(false);
 
   // ── activate modal ─────────────────────────────────────────────────────────
   const toDatetimeLocal = (d: Date) => {
@@ -108,9 +109,9 @@ export function SequenceDetailPage() {
     enabled: !!seq,
   });
 
-  const { data: entityList } = useQuery<Array<{ id: string; firstName: string; lastName: string; email: string }>>({    queryKey: ['entity-list-for-enroll', seq?.entityType, enrollSearch],
+  const { data: entityList } = useQuery<Array<{ id: string; firstName: string; lastName: string; email: string }>>({    queryKey: ['entity-list-for-enroll', seq?.entityType, enrollSearch, enrollOnlyNew],
     queryFn: async () => {
-      const params = { limit: 100, ...(enrollSearch ? { search: enrollSearch } : {}) };
+      const params = { limit: 100, ...(enrollSearch ? { search: enrollSearch } : {}), ...(enrollOnlyNew ? { notEnrolledInAnySequence: true } : {}) };
       if (seq?.entityType === 'INVESTOR') {
         return investorsApi.list(params).then((r) => r.data.data);
       }
@@ -148,7 +149,7 @@ export function SequenceDetailPage() {
   });
 
   const enrollAllMutation = useMutation({
-    mutationFn: () => sequencesApi.enrollAll(id!),
+    mutationFn: () => sequencesApi.enrollAll(id!, { notEnrolledInAnySequence: enrollOnlyNew }),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['sequence-enrollments', id] });
       queryClient.invalidateQueries({ queryKey: ['sequence', id] });
@@ -667,10 +668,19 @@ export function SequenceDetailPage() {
       </Modal>
 
       {/* ── Enroll Modal ────────────────────────────────────────────────────── */}
-      <Modal open={enrollModal} onClose={() => { setEnrollModal(false); setEnrollSuccess(''); setEnrollError(''); }} title={`Enroll ${seq.entityType === 'INVESTOR' ? 'Investor' : 'Partner'}`} size="md">
+      <Modal open={enrollModal} onClose={() => { setEnrollModal(false); setEnrollSuccess(''); setEnrollError(''); setEnrollOnlyNew(false); }} title={`Enroll ${seq.entityType === 'INVESTOR' ? 'Investor' : 'Partner'}`} size="md">
         <div className="p-6 space-y-4">
           {enrollError && <Alert variant="error">{enrollError}</Alert>}
           {enrollSuccess && <Alert variant="success">{enrollSuccess}</Alert>}
+          <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
+            <input
+              type="checkbox"
+              checked={enrollOnlyNew}
+              onChange={(e) => setEnrollOnlyNew(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span className="text-sm text-gray-700">Only show contacts not enrolled in any sequence</span>
+          </label>
           <div className="flex gap-2">
             <Input
               placeholder="Search by name or email…"
@@ -713,7 +723,7 @@ export function SequenceDetailPage() {
             )}
           </div>
           <div className="flex justify-end pt-1">
-            <Button variant="outline" onClick={() => { setEnrollModal(false); setEnrollSuccess(''); setEnrollError(''); }}>Close</Button>
+            <Button variant="outline" onClick={() => { setEnrollModal(false); setEnrollSuccess(''); setEnrollError(''); setEnrollOnlyNew(false); }}>Close</Button>
           </div>
         </div>
       </Modal>

@@ -35,8 +35,8 @@ export const sequencesApi = {
   enroll: (sequenceId: string, entityId: string) =>
     api.post<Enrollment>(`/sequences/${sequenceId}/enroll`, { entityId }),
 
-  enrollAll: (sequenceId: string) =>
-    api.post<{ enrolled: number; skipped: number }>(`/sequences/${sequenceId}/enroll-all`),
+  enrollAll: (sequenceId: string, options?: { notEnrolledInAnySequence?: boolean }) =>
+    api.post<{ enrolled: number; skipped: number }>(`/sequences/${sequenceId}/enroll-all`, options ?? {}),
 
   unenroll: (enrollmentId: string) =>
     api.post<Enrollment>(`/enrollments/${enrollmentId}/unenroll`),

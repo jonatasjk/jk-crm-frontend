@@ -477,4 +477,68 @@ describe('SequenceDetailPage', () => {
       expect(screen.queryByRole('heading', { name: /enroll investor/i })).not.toBeInTheDocument();
     });
   });
+
+  it('shows "Only show contacts not enrolled in any sequence" checkbox in enroll modal', async () => {
+    renderSeq('seq-1');
+    await waitFor(() => screen.getByRole('button', { name: /^enroll$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^enroll$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/only show contacts not enrolled in any sequence/i)).toBeInTheDocument();
+    });
+  });
+
+  it('checkbox is unchecked by default', async () => {
+    renderSeq('seq-1');
+    await waitFor(() => screen.getByRole('button', { name: /^enroll$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^enroll$/i }));
+
+    await waitFor(() => {
+      const checkbox = screen.getByLabelText(/only show contacts not enrolled in any sequence/i) as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+    });
+  });
+
+  it('sends notEnrolledInAnySequence=true param when checkbox is checked', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get(`${BASE}/investors`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ data: [], total: 0, page: 1, limit: 100, pages: 0 });
+      }),
+    );
+
+    renderSeq('seq-1');
+    await waitFor(() => screen.getByRole('button', { name: /^enroll$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^enroll$/i }));
+
+    await waitFor(() => screen.getByLabelText(/only show contacts not enrolled in any sequence/i));
+    await userEvent.click(screen.getByLabelText(/only show contacts not enrolled in any sequence/i));
+
+    await waitFor(() => {
+      expect(capturedUrl).toContain('notEnrolledInAnySequence=true');
+    });
+  });
+
+  it('resets the checkbox when enroll modal is closed and reopened', async () => {
+    renderSeq('seq-1');
+    await waitFor(() => screen.getByRole('button', { name: /^enroll$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^enroll$/i }));
+
+    await waitFor(() => screen.getByLabelText(/only show contacts not enrolled in any sequence/i));
+    await userEvent.click(screen.getByLabelText(/only show contacts not enrolled in any sequence/i));
+
+    // Close and reopen
+    const dialog = screen.getByRole('dialog');
+    const closeButtons = within(dialog).getAllByRole('button', { name: /^close$/i });
+    await userEvent.click(closeButtons[closeButtons.length - 1]);
+
+    await waitFor(() => screen.getByRole('button', { name: /^enroll$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^enroll$/i }));
+
+    await waitFor(() => {
+      const checkbox = screen.getByLabelText(/only show contacts not enrolled in any sequence/i) as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+    });
+  });
 });
