@@ -110,7 +110,7 @@ test.describe('Authentication flow', () => {
     await page.getByRole('button', { name: /sign in/i }).click();
 
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
-    await expect(page.getByText('Dashboard')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
   });
 
   test('shows error message on wrong credentials', async ({ page }) => {
@@ -148,7 +148,7 @@ test.describe('Authentication flow', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 
     // Logout via sidebar
-    await page.getByRole('button', { name: /sign out/i }).click();
+    await page.getByRole('button', { name: /sign out/i }).first().click();
     await expect(page).toHaveURL(/\/login/);
   });
 });

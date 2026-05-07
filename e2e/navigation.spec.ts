@@ -88,61 +88,61 @@ async function loginAndMockApis(page: Page) {
 test.describe('Navigation', () => {
   test('authenticated user can navigate to Investors page', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Investors' }).click();
+    await page.getByRole('link', { name: 'Investors' }).first().click();
     await expect(page).toHaveURL(/\/investors/);
-    await expect(page.getByText('Investors')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Investors' })).toBeVisible();
   });
 
   test('authenticated user can navigate to Partners page', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Partners' }).click();
+    await page.getByRole('link', { name: 'Partners' }).first().click();
     await expect(page).toHaveURL(/\/partners/);
-    await expect(page.getByText('Partners')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Partners' })).toBeVisible();
   });
 
   test('authenticated user can navigate to Emails page', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Emails' }).click();
+    await page.getByRole('link', { name: 'Emails' }).first().click();
     await expect(page).toHaveURL(/\/emails/);
     await expect(page.getByText('Email Log')).toBeVisible();
   });
 
   test('authenticated user can navigate to Sequences page', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Sequences' }).click();
+    await page.getByRole('link', { name: 'Sequences' }).first().click();
     await expect(page).toHaveURL(/\/sequences/);
-    await expect(page.getByText('Sequences')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Sequences' })).toBeVisible();
   });
 
   test('authenticated user can navigate to Materials page', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Materials' }).click();
+    await page.getByRole('link', { name: 'Materials' }).first().click();
     await expect(page).toHaveURL(/\/materials/);
-    await expect(page.getByText('Materials')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Materials', level: 1 })).toBeVisible();
   });
 
   test('dashboard shows navigation sidebar', async ({ page }) => {
     await loginAndMockApis(page);
-    await expect(page.getByText('JK CRM')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Investors' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Partners' })).toBeVisible();
+    await expect(page.getByText('JK CRM').first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Dashboard' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Investors' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Partners' }).first()).toBeVisible();
   });
 
   test('active navigation link is highlighted', async ({ page }) => {
     await loginAndMockApis(page);
     // On dashboard, Dashboard nav link should be active (indigo background)
-    const dashboardLink = page.getByRole('link', { name: 'Dashboard' });
+    const dashboardLink = page.getByRole('link', { name: 'Dashboard' }).first();
     await expect(dashboardLink).toHaveClass(/bg-indigo-600/);
   });
 
   test('can navigate back to dashboard via nav link', async ({ page }) => {
     await loginAndMockApis(page);
     // Go to investors first
-    await page.getByRole('link', { name: 'Investors' }).click();
+    await page.getByRole('link', { name: 'Investors' }).first().click();
     await expect(page).toHaveURL(/\/investors/);
     // Navigate back to dashboard
-    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await page.getByRole('link', { name: 'Dashboard' }).first().click();
     await expect(page).toHaveURL(/\/dashboard/);
   });
 });
@@ -150,7 +150,7 @@ test.describe('Navigation', () => {
 test.describe('Investors page interactions', () => {
   test('shows investor list view', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Investors' }).click();
+    await page.getByRole('link', { name: 'Investors' }).first().click();
     await expect(page).toHaveURL(/\/investors/);
 
     // Switch to list view
@@ -160,15 +160,15 @@ test.describe('Investors page interactions', () => {
 
   test('opens create investor modal', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Investors' }).click();
+    await page.getByRole('link', { name: 'Investors' }).first().click();
     await page.getByRole('button', { name: /add investor/i }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByText('Add investor')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Add investor' })).toBeVisible();
   });
 
   test('can close create investor modal with Cancel', async ({ page }) => {
     await loginAndMockApis(page);
-    await page.getByRole('link', { name: 'Investors' }).click();
+    await page.getByRole('link', { name: 'Investors' }).first().click();
     await page.getByRole('button', { name: /add investor/i }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('button', { name: /cancel/i }).click();

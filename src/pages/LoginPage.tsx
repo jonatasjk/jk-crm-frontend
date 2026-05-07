@@ -49,7 +49,7 @@ export function LoginPage() {
           <p className="text-gray-500 mt-1">Sign in to JK CRM</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-4">
           {error && <Alert variant="error">{error}</Alert>}
 
           <Input
