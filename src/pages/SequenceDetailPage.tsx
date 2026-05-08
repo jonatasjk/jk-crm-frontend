@@ -88,6 +88,7 @@ export function SequenceDetailPage() {
 
   // ── enrollment table filter ────────────────────────────────────────────────
   const [enrollFilter, setEnrollFilter] = useState<EnrollFilter>('ALL');
+  const [enrollNameFilter, setEnrollNameFilter] = useState('');
 
   // ── queries ────────────────────────────────────────────────────────────────
   const { data: seq, isLoading } = useQuery({
@@ -243,10 +244,13 @@ export function SequenceDetailPage() {
   };
 
   // ── filtered enrollments ───────────────────────────────────────────────────
-  const visibleEnrollments =
-    enrollFilter === 'ALL'
-      ? enrollments
-      : enrollments.filter((e: Enrollment) => e.status === enrollFilter);
+  const visibleEnrollments = enrollments
+    .filter((e: Enrollment) => enrollFilter === 'ALL' || e.status === enrollFilter)
+    .filter((e: Enrollment) => {
+      if (!enrollNameFilter.trim()) return true;
+      const q = enrollNameFilter.trim().toLowerCase();
+      return e.entityName.toLowerCase().includes(q) || e.entityEmail.toLowerCase().includes(q);
+    });
 
   // ── already-enrolled ids ───────────────────────────────────────────────────
   const enrolledIds = new Set(enrollments.map((e: Enrollment) => e.entityId));
@@ -424,17 +428,26 @@ export function SequenceDetailPage() {
             <h2 className="font-semibold text-gray-800">
               Enrollments <span className="text-gray-400 font-normal text-sm">({enrollments.length})</span>
             </h2>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => { setEnrollError(''); setEnrollSuccess(''); setEnrollSearch(''); setEnrollModal(true); }}
-              disabled={!seq.steps?.length}
-              title={!seq.steps?.length ? 'Add at least one step first' : undefined}
-              className="gap-1"
-            >
-              <UserPlus size={14} />
-              Enroll
-            </Button>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={enrollNameFilter}
+                onChange={(e) => setEnrollNameFilter(e.target.value)}
+                placeholder="Filter by name or email"
+                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 w-52 focus:outline-none focus:ring-2 focus:ring-indigo-300 placeholder-gray-400"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setEnrollError(''); setEnrollSuccess(''); setEnrollSearch(''); setEnrollModal(true); }}
+                disabled={!seq.steps?.length}
+                title={!seq.steps?.length ? 'Add at least one step first' : undefined}
+                className="gap-1"
+              >
+                <UserPlus size={14} />
+                Enroll
+              </Button>
+            </div>
           </div>
 
           {/* Filter tabs */}
