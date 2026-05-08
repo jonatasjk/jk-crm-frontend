@@ -541,4 +541,101 @@ describe('SequenceDetailPage', () => {
       expect(checkbox.checked).toBe(false);
     });
   });
+
+  it('enrollment name filter hides non-matching rows', async () => {
+    server.use(
+      http.get(`${BASE}/sequences/seq-1/enrollments`, () =>
+        HttpResponse.json([
+          {
+            id: 'enr-1',
+            sequenceId: 'seq-1',
+            entityId: 'inv-1',
+            entityType: 'INVESTOR',
+            status: 'ACTIVE',
+            currentStepIndex: 0,
+            nextSendAt: '2024-06-15T12:00:00Z',
+            enrolledAt: '2024-06-01T00:00:00Z',
+            entityName: 'Alice Smith',
+            entityEmail: 'alice@example.com',
+            totalSteps: 2,
+            stepsLog: [],
+          },
+          {
+            id: 'enr-2',
+            sequenceId: 'seq-1',
+            entityId: 'inv-2',
+            entityType: 'INVESTOR',
+            status: 'ACTIVE',
+            currentStepIndex: 0,
+            nextSendAt: '2024-06-15T12:00:00Z',
+            enrolledAt: '2024-06-01T00:00:00Z',
+            entityName: 'Bob Johnson',
+            entityEmail: 'bob@ventures.com',
+            totalSteps: 2,
+            stepsLog: [],
+          },
+        ]),
+      ),
+    );
+
+    renderSeq('seq-1');
+    await waitFor(() => screen.getByText('Alice Smith'));
+    await waitFor(() => screen.getByText('Bob Johnson'));
+
+    const filterInput = screen.getByPlaceholderText(/filter by name or email/i);
+    await userEvent.type(filterInput, 'Alice');
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Smith')).toBeInTheDocument();
+      expect(screen.queryByText('Bob Johnson')).not.toBeInTheDocument();
+    });
+  });
+
+  it('enrollment name filter matches by email', async () => {
+    server.use(
+      http.get(`${BASE}/sequences/seq-1/enrollments`, () =>
+        HttpResponse.json([
+          {
+            id: 'enr-1',
+            sequenceId: 'seq-1',
+            entityId: 'inv-1',
+            entityType: 'INVESTOR',
+            status: 'ACTIVE',
+            currentStepIndex: 0,
+            nextSendAt: '2024-06-15T12:00:00Z',
+            enrolledAt: '2024-06-01T00:00:00Z',
+            entityName: 'Alice Smith',
+            entityEmail: 'alice@example.com',
+            totalSteps: 2,
+            stepsLog: [],
+          },
+          {
+            id: 'enr-2',
+            sequenceId: 'seq-1',
+            entityId: 'inv-2',
+            entityType: 'INVESTOR',
+            status: 'ACTIVE',
+            currentStepIndex: 0,
+            nextSendAt: '2024-06-15T12:00:00Z',
+            enrolledAt: '2024-06-01T00:00:00Z',
+            entityName: 'Bob Johnson',
+            entityEmail: 'bob@ventures.com',
+            totalSteps: 2,
+            stepsLog: [],
+          },
+        ]),
+      ),
+    );
+
+    renderSeq('seq-1');
+    await waitFor(() => screen.getByText('Bob Johnson'));
+
+    const filterInput = screen.getByPlaceholderText(/filter by name or email/i);
+    await userEvent.type(filterInput, 'ventures.com');
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob Johnson')).toBeInTheDocument();
+      expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument();
+    });
+  });
 });
