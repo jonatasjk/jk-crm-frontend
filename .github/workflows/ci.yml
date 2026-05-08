@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Update npm
+        run: npm install -g npm@11
+
       - name: System info
         run: |
           echo "Node: $(node --version)"
