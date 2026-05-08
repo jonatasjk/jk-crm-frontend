@@ -59,15 +59,18 @@ export const handlers = [
   ),
 
   // ── Investors ─────────────────────────────────────────────────────────────
-  http.get(`${BASE}/investors`, () =>
-    HttpResponse.json({
-      data: mockInvestors,
-      total: mockInvestors.length,
+  http.get(`${BASE}/investors`, ({ request }) => {
+    const url = new URL(request.url);
+    const stage = url.searchParams.get('stage');
+    const filtered = stage ? mockInvestors.filter((i) => i.stage === stage) : mockInvestors;
+    return HttpResponse.json({
+      data: filtered,
+      total: filtered.length,
       page: 1,
-      limit: 200,
-      pages: 1,
-    }),
-  ),
+      limit: 50,
+      pages: filtered.length > 0 ? 1 : 0,
+    });
+  }),
 
   http.get(`${BASE}/investors/:id`, ({ params }) => {
     const inv = mockInvestors.find((i) => i.id === params.id) ?? mockInvestors[0];

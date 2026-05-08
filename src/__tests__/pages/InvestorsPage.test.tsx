@@ -128,7 +128,7 @@ describe('InvestorsPage', () => {
   it('shows "No investors found" in list view when search returns empty', async () => {
     server.use(
       http.get(`${BASE}/investors`, () =>
-        HttpResponse.json({ data: [], total: 0, page: 1, limit: 200, pages: 0 }),
+        HttpResponse.json({ data: [], total: 0, page: 1, limit: 50, pages: 0 }),
       ),
     );
 
@@ -235,15 +235,18 @@ describe('InvestorsPage — InvestorListView helpers', () => {
 
   it('renders investor stage badge in list view', async () => {
     server.use(
-      http.get(`${BASE}/investors`, () =>
-        HttpResponse.json({
-          data: [mockInvestors[0]],
-          total: 1,
+      http.get(`${BASE}/investors`, ({ request }) => {
+        const url = new URL(request.url);
+        const stage = url.searchParams.get('stage');
+        const filtered = stage === mockInvestors[0].stage ? [mockInvestors[0]] : [];
+        return HttpResponse.json({
+          data: filtered,
+          total: filtered.length,
           page: 1,
-          limit: 200,
-          pages: 1,
-        }),
-      ),
+          limit: 50,
+          pages: filtered.length > 0 ? 1 : 0,
+        });
+      }),
     );
 
     renderWithProviders(<InvestorsPage />);

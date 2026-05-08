@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, Upload, LayoutGrid, List } from 'lucide-react';
 import { investorsApi } from '@/api/investors.api';
 import { Button } from '@/components/ui/Button';
@@ -22,10 +22,16 @@ export function InvestorsPage() {
   const [showImport, setShowImport] = useState(false);
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['investors', { search }],
-    queryFn: () => investorsApi.list({ search: search || undefined, limit: 200 }).then((r) => r.data),
+  const stageQueries = useQueries({
+    queries: INVESTOR_STAGES.map((stage) => ({
+      queryKey: ['investors', { search, stage }],
+      queryFn: () => investorsApi.list({ search: search || undefined, stage }).then((r) => r.data),
+    })),
   });
+
+  const isLoading = stageQueries.some((q) => q.isLoading);
+  const allInvestors = stageQueries.flatMap((q) => q.data?.data ?? []);
+  const total = stageQueries.reduce((sum, q) => sum + (q.data?.total ?? 0), 0);
 
   const createMutation = useMutation({
     mutationFn: investorsApi.create,
@@ -56,7 +62,7 @@ export function InvestorsPage() {
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white flex-shrink-0">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Investors</h1>
-          <p className="text-sm text-gray-500">{data?.total ?? 0} total</p>
+          <p className="text-sm text-gray-500">{total} total</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -104,14 +110,14 @@ export function InvestorsPage() {
           <KanbanBoard
             stages={INVESTOR_STAGES}
             stageLabels={INVESTOR_STAGE_LABELS}
-            items={data?.data ?? []}
+            items={allInvestors}
             onStageChange={handleStageChange}
             onCardClick={(e) => setSelectedInvestor(e as Investor)}
             entityType="investor"
           />
         ) : (
           <InvestorListView
-            investors={data?.data ?? []}
+            investors={allInvestors}
             onSelect={(e) => setSelectedInvestor(e)}
           />
         )}

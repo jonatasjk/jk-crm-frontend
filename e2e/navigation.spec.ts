@@ -30,10 +30,13 @@ async function loginAndMockApis(page: Page) {
   ];
 
   await page.route(`${BASE}/investors**`, async (route) => {
+    const url = new URL(route.request().url());
+    const stage = url.searchParams.get('stage');
+    const filtered = stage ? mockInvestors.filter((i) => i.stage === stage) : mockInvestors;
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ data: mockInvestors, total: 1, page: 1, limit: 200, pages: 1 }),
+      body: JSON.stringify({ data: filtered, total: filtered.length, page: 1, limit: 50, pages: filtered.length > 0 ? 1 : 0 }),
     });
   });
 
