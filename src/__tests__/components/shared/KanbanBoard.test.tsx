@@ -75,7 +75,7 @@ describe('KanbanBoard', () => {
     );
     expect(screen.getByText('Prospect')).toBeInTheDocument();
     expect(screen.getByText('Contacted')).toBeInTheDocument();
-    expect(screen.getByText('Meeting Scheduled')).toBeInTheDocument();
+    expect(screen.getByText('Meeting')).toBeInTheDocument();
     expect(screen.getByText('Term Sheet')).toBeInTheDocument();
     expect(screen.getByText('Closed / Won')).toBeInTheDocument();
     expect(screen.getByText('Closed / Lost')).toBeInTheDocument();
