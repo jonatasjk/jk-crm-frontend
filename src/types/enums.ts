@@ -31,7 +31,7 @@ export const INVESTOR_STAGES: InvestorStage[] = [
 export const INVESTOR_STAGE_LABELS: Record<InvestorStage, string> = {
   PROSPECT: 'Prospect',
   CONTACTED: 'Contacted',
-  MEETING: 'Meeting Scheduled',
+  MEETING: 'Meeting',
   DUE_DILIGENCE: 'Due Diligence',
   TERM_SHEET: 'Term Sheet',
   CLOSED_WON: 'Closed / Won',

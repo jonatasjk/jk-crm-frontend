@@ -68,7 +68,7 @@ import capabilities.
 
 ### Investor Pipeline (7 stages)
 ```
-Prospect → Contacted → Meeting Scheduled → Due Diligence → Term Sheet → Closed Won → Closed Lost
+Prospect → Contacted → Meeting → Due Diligence → Term Sheet → Closed Won → Closed Lost
 ```
 
 ### Partner Pipeline (6 stages)
